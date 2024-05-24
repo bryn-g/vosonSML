@@ -48,11 +48,11 @@ Collect.thread.reddit <-
     }
 
     invisible(check_chr(threadUrls, param = "threadUrls"))
-    
+
     # check sort
     sort_opts <- c("best", "top", "new", "controversial", "old", "qa", NA)
     invisible(cmp_values(sort, sort_opts, param = "sort", n = length(threadUrls)))
-    
+
     if (length(sort) == 1) sort <- rep(sort, length(threadUrls))
     sort <- tolower(sort)
 
@@ -101,10 +101,10 @@ Collect.thread.reddit <-
     }
 
     class(threads_df) <- append(c("datasource", "reddit"), class(threads_df))
-    
+
     meta_log <- c(collect_log, paste0(format(Sys.time(), "%a %b %d %X %Y")))
-    
-    if (writeToFile) write_output_file(threads_df, "rds", "RedditData", verbose = verbose, log = meta_log)
+
+    if (writeToFile) write_output_file(threads_df, "rds", "RedditData", verbose = verbose)
 
     msg("Done.\n")
 
@@ -113,16 +113,16 @@ Collect.thread.reddit <-
 
 reddit_build_df <- function(threadUrls, sort, waitTime, ua, verbose) {
   msg <- f_verbose(verbose)
-  
+
   threads <- list()
   for (thread_i in seq_along(threadUrls)) {
-    
+
     url <- threadUrls[thread_i]
     url_sort <- sort[thread_i]
     if (length(threadUrls) > 1 & (url != threadUrls[1])) {
       Sys.sleep(sample(waitTime, 1))
     }
-    
+
     thread_json <- reddit_data(url, url_sort, wait_time = waitTime, ua = ua, verbose = verbose)
     branch_df <- reddit_content_plus(thread_json, url, verbose = verbose)
 
@@ -149,7 +149,7 @@ reddit_build_df <- function(threadUrls, sort, waitTime, ua, verbose) {
 
       row_comm_id <- extra_threads[row_i, "comm_id"]
       cont_thread_id <- gsub("Listing:t1_", "", row_comm_id)
-      
+
       # set continue thread comment rm flag to true
       branch_df <- branch_df |>
         dplyr::mutate(
@@ -158,7 +158,7 @@ reddit_build_df <- function(threadUrls, sort, waitTime, ua, verbose) {
 
       # if trailing slash missing from url
       if (!grepl("/$", url)) url <- paste0(url, "/")
-      
+
       # get continue thread
       cont_json <- reddit_data(
         paste0(url, cont_thread_id),
@@ -167,7 +167,7 @@ reddit_build_df <- function(threadUrls, sort, waitTime, ua, verbose) {
         ua,
         cont = cont_thread_id,
         verbose = verbose)
-      
+
       cont_df <- reddit_content_plus(cont_json, url, depth = depth, verbose = verbose)
 
       # if comments returned
@@ -185,7 +185,7 @@ reddit_build_df <- function(threadUrls, sort, waitTime, ua, verbose) {
 
       extra_threads <- extra_threads[-row_i, ] # not needed
       extra_threads <- dplyr::filter(branch_df, grepl("Listing:", .data$comm_id), .data$rm == FALSE)
-      
+
     } # end while
 
     if (!is.null(branch_df) && nrow(branch_df) > 0) {
@@ -198,7 +198,7 @@ reddit_build_df <- function(threadUrls, sort, waitTime, ua, verbose) {
           perl = TRUE,
           useBytes = TRUE
         ) # extract thread id
-      
+
       branch_df <- branch_df |>
         dplyr::filter(.data$rm == FALSE) |> # remove continue thread entries
         dplyr::arrange(.data$thread_id, .data$id)
@@ -208,7 +208,7 @@ reddit_build_df <- function(threadUrls, sort, waitTime, ua, verbose) {
 
     threads[[thread_i]] <- branch_df
   }
-  
+
   threads_df <- dplyr::bind_rows(threads) |> dplyr::select(-.data$rm)
 
   threads_df
@@ -224,11 +224,11 @@ reddit_data <-
            verbose = FALSE) {
 
     msg <- f_verbose(verbose)
-    
+
     if (is.null(url) || length(url) == 0 || !is.character(url)) {
       stop("invalid URL parameter")
     }
-    
+
     req_url <- create_thread_url(url, url_sort)
     req_tid <- get_thread_id(req_url, TRUE)
 
@@ -262,14 +262,14 @@ reddit_data <-
 # based on method by @ivan-rivera RedditExtractoR
 reddit_values_list  <- function(node, feature) {
   attr <- node$data[[feature]]
-  
+
   if (is.null(attr)) attr <- NA
   if (feature == "id") {
     if (attr == "_") {
       attr <- paste0("Listing:", node$data$parent_id)
     }
   }
-  
+
   reply_nodes <- NULL
   replies <- node$data$replies
   if (is.list(replies)) reply_nodes <- replies$data$children
@@ -302,7 +302,7 @@ reddit_struct_list <- function(node, depth = 0) {
 # based on method by @ivan-rivera RedditExtractoR
 reddit_content_plus <- function(raw_data, req_url, depth = 0, verbose = FALSE) {
   msg <- f_verbose(verbose)
-  
+
   data_extract <- tibble::tibble(
     id = numeric(),
     structure = character(),

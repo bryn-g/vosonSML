@@ -35,7 +35,7 @@ Collect.web <-
            verbose = FALSE,
            ...) {
 
-    prompt_and_stop(c("robotstxt", "rvest", "urltools", "xml2"), "Collect.web")
+    pkgs_install_or_stop(c("robotstxt", "rvest", "urltools", "xml2"), "Collect.web")
 
     msg("Collecting web page hyperlinks...\n")
 
@@ -66,10 +66,10 @@ Collect.web <-
     df_results <- purrr::map_dfr(df_results, dplyr::bind_rows)
 
     class(df_results) <- append(c("datasource", "web"), class(df_results))
-    
+
     meta_log <- c(collect_log, paste0(format(Sys.time(), "%a %b %d %X %Y")))
-    
-    if (writeToFile) write_output_file(df_results, "rds", "WebData", verbose = verbose, log = meta_log)
+
+    if (writeToFile) write_output_file(df_results, "rds", "WebData", verbose = verbose)
 
     msg("Done.\n")
 

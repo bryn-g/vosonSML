@@ -7,11 +7,11 @@
 #'   workflow.
 #'
 #'   Refer to \code{\link{Authenticate.mastodon}}, \code{\link{Authenticate.youtube}},
-#'    \code{\link{Authenticate.reddit}}, \code{\link{Authenticate.twitter}} and
+#'    \code{\link{Authenticate.reddit}} and
 #'    \code{\link{Authenticate.web}} for parameters and usage.
 #'
 #' @param socialmedia Character string. Identifier for social media API to authenticate with. Supported social media are
-#'   \code{"mastodon"}, \code{"youtube"}, \code{"reddit"}, \code{"twitter"} and \code{"web"}.
+#'   \code{"mastodon"}, \code{"youtube"}, \code{"reddit"} and \code{"web"}.
 #' @param ... Optional parameters to pass to functions providied by supporting R packages that are used for social media
 #'   API access.
 #'

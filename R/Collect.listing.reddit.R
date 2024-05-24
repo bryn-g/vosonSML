@@ -57,10 +57,10 @@ Collect.listing.reddit <-
     # check sort
     sort_opts <- c("hot", "top", "new", "rising")
     invisible(cmp_values(sort, sort_opts, param = "sort", n = length(subreddits)))
-    
+
     if (length(sort) == 1) sort <- rep(sort, length(subreddits))
     sort <- tolower(sort)
-    
+
     # check period
     if (any(sort == "top")) {
       if (!length(period) %in% c(1, length(subreddits))) {
@@ -68,23 +68,23 @@ Collect.listing.reddit <-
       }
       if (length(period) == 1) period <- rep(period, length(subreddits))
       period <- tolower(period)
-      
+
       period_opts <- c("hour", "day", "week", "month", "year", "all")
       invisible(cmp_values(period[which(sort == "top")], period_opts, param = "period"))
     }
-    
+
     # check max
     max <- check_num(max, param = "max", gte = 1)
-    
+
     if (!length(max) %in% c(1, length(subreddits))) {
       stop(
         "Please provide a max parameter of numeric type that is length 1 or ", length(subreddits), ".",
         call. = FALSE
       )
     }
-    
+
     if (length(max) == 1) max <- rep(max, length(subreddits))
-    
+
     # some protection against spamming requests
     waitTime <- check_wait_range_secs(waitTime, param = "waitTime", def_min = 3, def_max = 10)
 
@@ -99,7 +99,7 @@ Collect.listing.reddit <-
       # stop(gsub("^Error:\\s", "", paste0(e)), call. = FALSE)
       msg(gsub("^Error:\\s", "", paste0(e)))
     })
-    
+
     if (!is.null(listing_df)) {
       if (nrow(listing_df) > 0) {
         # summary
@@ -120,10 +120,10 @@ Collect.listing.reddit <-
     }
 
     class(listing_df) <- append(c("listing", "reddit"), class(listing_df))
-    
+
     meta_log <- c(collect_log, paste0(format(Sys.time(), "%a %b %d %X %Y")))
-    
-    if (writeToFile) write_output_file(listing_df, "rds", "RedditListing", verbose = verbose, log = meta_log)
+
+    if (writeToFile) write_output_file(listing_df, "rds", "RedditListing", verbose = verbose)
 
     msg("Done.\n")
 
@@ -132,41 +132,41 @@ Collect.listing.reddit <-
 
 reddit_build_listing_df <- function(subreddits, sort, period, max, wait_time, ua, verbose) {
   msg <- f_verbose(verbose)
-  
+
   results <- NULL
-  
+
   for (i in seq_along(1:length(subreddits))) {
     subreddit_i <- subreddits[i]
     sort_i <- sort[i]
     period_i <- period[i]
     max_i <- max[i]
-    
+
     msg(paste0("Request subreddit listing: ", subreddit_i, " (max items: ", max_i, ")"))
-    
+
     max_iter <- ceiling(max_i/25)
     results_i <- NULL
     qs <- NULL
-    
+
     for (j in seq_along(1:max_iter)) {
       msg(".")
       url <- create_listing_url(subreddit_i, sort_i, period_i, qs)
       resp <- get_json(url, ua = ua, alt = TRUE)
-      
+
       if (is.null(resp$status) || as.numeric(resp$status) != 200) {
         msg(paste0("Failed: ", url, ifelse(is.null(resp$status), "", paste0(" (", resp$status, ")")), "\n"))
       }
-      
+
       data <- resp$data$data
-      
+
       df <- tibble::as_tibble(data$children$data)
-      
+
       # nested_df <- df |> dplyr::select("id", dplyr::where(is.list))
       # tryCatch({
       #   nested_df <- nested_df |> tidyr::unnest_longer(col = dplyr::where(is.list), keep_empty = TRUE)
-      # }, error = function(e) { 
-      #   msg(paste0("Unable to flatten data. ", e, "\n"))  
+      # }, error = function(e) {
+      #   msg(paste0("Unable to flatten data. ", e, "\n"))
       # })
-      
+
       results_i <- dplyr::bind_rows(results_i, df)
 
       if (!is.null(data$after)) {
@@ -181,10 +181,10 @@ reddit_build_listing_df <- function(subreddits, sort, period, max, wait_time, ua
         break
       }
     }
-    
+
     results <- dplyr::bind_rows(results, results_i)
     if (i != length(subreddits)) Sys.sleep(sample(wait_time, 1))
   }
-  
+
   results
 }

@@ -5,8 +5,7 @@
 #'   \code{Collect}, and \code{\link{Create}} workflow.
 #'
 #'   Refer to \code{\link{Collect.search.mastodon}}, \code{\link{Collect.thread.mastodon}},
-#'   \code{\link{Collect.youtube}}, \code{\link{Collect.thread.reddit}}, \code{\link{Collect.listing.reddit}},
-#'   \code{\link{Collect.search.twitter}}, \code{\link{Collect.timeline.twitter}} and
+#'   \code{\link{Collect.youtube}}, \code{\link{Collect.thread.reddit}}, \code{\link{Collect.listing.reddit}} and
 #'   \code{\link{Collect.web}} for parameters and usage.
 #'
 #' @param credential A \code{credential} object generated from \code{Authenticate}.
@@ -16,7 +15,7 @@
 #' @export
 Collect <- function(credential, ...) {
   msg <- f_verbose(check_dots("verbose", ...))
-  
+
   ts_ <- Sys.time()
   collect_log <- c(
     paste0("collect.", credential$socialmedia),
@@ -24,7 +23,7 @@ Collect <- function(credential, ...) {
     paste0(format(ts_, tz = "UTC", usetz = TRUE)), "",
     paste0(names(list(...)), " = ", as.character(list(...)), collapse = "\n")
   )
-  
+
   # set the environment encoding to UTF-8 for data collection
   saved_enc <- getOption("encoding")
   saved_ua <- getOption("HTTPUserAgent")
@@ -51,13 +50,6 @@ Collect <- function(credential, ...) {
 #' @export
 Collect.default <- function(credential, ...) {
   stop("Unknown credential social media or endpoint passed to collect.", call. = FALSE)
-}
-
-#' @noRd
-#' @method Collect twitter
-#' @export
-Collect.twitter <- function(credential, endpoint, ...) {
-  UseMethod("Collect.search", credential)
 }
 
 #' @title Collect search data

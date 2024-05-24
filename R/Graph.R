@@ -19,7 +19,7 @@ Graph <- function(net,
 
   msg <- f_verbose(verbose)
 
-  prompt_and_stop("igraph", "Graph")
+  pkgs_install_or_stop("igraph", "Graph")
 
   msg("Creating igraph network graph...\n")
 
@@ -31,8 +31,8 @@ Graph <- function(net,
   #   net$edges <- net$edges |> dplyr::mutate_if(lubridate::is.POSIXt, as.character)
   # }
 
-  if (any(c("twitter", "youtube", "reddit", "web", "mastodon") %in% class(net)) &&
-      any(c("activity", "actor", "twomode") %in% class(net))) {
+  if (any(c("youtube", "reddit", "web", "mastodon") %in% class(net)) &&
+      any(c("activity", "actor") %in% class(net))) {
     g <- igraph::graph_from_data_frame(
       d = net$edges,
       directed = directed,
@@ -67,23 +67,6 @@ Graph.activity <-
 Graph.activity.default <- function(...) {
   stop("Unknown social media type passed to graph.", call. = FALSE)
 }
-
-#' @noRd
-#' @export
-Graph.activity.twitter <-
-  function(net,
-           directed = TRUE,
-           writeToFile = FALSE,
-           verbose = FALSE,
-           ...) {
-
-    g <- igraph::set_graph_attr(g, "type", "twitter")
-
-    graphOutputFile(g, "graphml", writeToFile, "TwitterActivity", verbose = verbose)
-    msg("Done.\n")
-
-    g
-  }
 
 #' @noRd
 #' @export
@@ -144,12 +127,12 @@ Graph.activity.mastodon <-
            writeToFile = FALSE,
            verbose = FALSE,
            ...) {
-    
+
     g <- igraph::set_graph_attr(g, "type", "mastodon")
-    
+
     graphOutputFile(g, "graphml", writeToFile, "MastodonActivity", verbose = verbose)
     msg("Done.\n")
-    
+
     g
   }
 
@@ -170,23 +153,6 @@ Graph.actor <-
 Graph.actor.default <- function(...) {
   stop("Unknown social media type passed to graph.", call. = FALSE)
 }
-
-#' @noRd
-#' @export
-Graph.actor.twitter <-
-  function(net,
-           directed = TRUE,
-           writeToFile = FALSE,
-           verbose = FALSE,
-           ...) {
-
-    g <- igraph::set_graph_attr(g, "type", "twitter")
-
-    graphOutputFile(g, "graphml", writeToFile, "TwitterActor", verbose = verbose)
-    msg("Done.\n")
-
-    g
-  }
 
 #' @noRd
 #' @export
@@ -247,87 +213,10 @@ Graph.actor.mastodon <-
            writeToFile = FALSE,
            verbose = FALSE,
            ...) {
-    
+
     g <- igraph::set_graph_attr(g, "type", "mastodon")
-    
+
     graphOutputFile(g, "graphml", writeToFile, "MastodonActor", verbose = verbose)
-    msg("Done.\n")
-    
-    g
-  }
-
-#' @noRd
-#' @method Graph semantic
-#' @export
-Graph.semantic <-
-  function(net,
-           directed = FALSE,
-           writeToFile = FALSE,
-           verbose = FALSE,
-           ...) {
-    UseMethod("Graph.semantic", net)
-  }
-
-#' @noRd
-#' @export
-Graph.semantic.default <- function(...) {
-  stop("Unknown social media type passed to graph.", call. = FALSE)
-}
-
-#' @noRd
-#' @export
-Graph.semantic.twitter <-
-  function(net,
-           directed = FALSE,
-           writeToFile = FALSE,
-           verbose = FALSE,
-           ...) {
-
-    # create igraph object from dataframes
-    g <- igraph::graph_from_data_frame(
-      d = net$edges,
-      directed = directed,
-      vertices = net$nodes
-    )
-
-    g <- igraph::set_graph_attr(g, "type", "twitter")
-
-    graphOutputFile(g, "graphml", writeToFile, "TwitterSemantic", verbose = verbose)
-    msg("Done.\n")
-
-    g
-  }
-
-#' @noRd
-#' @method Graph twomode
-#' @export
-Graph.twomode <-
-  function(net,
-           directed = TRUE,
-           writeToFile = FALSE,
-           verbose = FALSE,
-           ...) {
-    UseMethod("Graph.twomode", net)
-  }
-
-#' @noRd
-#' @export
-Graph.twomode.default <- function(...) {
-  stop("Unknown social media type passed to graph.", call. = FALSE)
-}
-
-#' @noRd
-#' @export
-Graph.twomode.twitter <-
-  function(net,
-           directed = TRUE,
-           writeToFile = FALSE,
-           verbose = FALSE,
-           ...) {
-
-    g <- igraph::set_graph_attr(g, "type", "twitter")
-
-    graphOutputFile(g, "graphml", writeToFile, "Twitter2mode", verbose = verbose)
     msg("Done.\n")
 
     g

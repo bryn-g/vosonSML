@@ -22,7 +22,7 @@ MergeFiles <-
            verbose = FALSE) {
 
     msg <- f_verbose(verbose)
-    
+
     ts_ <- Sys.time()
     merge_log <- c(
       paste0("merge.files"),
@@ -35,7 +35,7 @@ MergeFiles <-
       paste0("writeToFile = ", writeToFile),
       paste0("verbose = ", verbose), ""
     )
-    
+
     msg("Merging collect files...\n")
 
     if (!dir.exists(path)) stop("Path does not exist.")
@@ -45,14 +45,14 @@ MergeFiles <-
     if (length(files) < 1) stop("No matching files found.")
 
     merge_log <- append(merge_log, files)
-    
+
     msg(paste0("Matching files:\n", paste0(paste0("- ", files), collapse = "\n"), "\n"))
 
     data <- purrr::reduce(lapply(files, readRDS), .f = Merge)
 
     merge_log <- c(merge_log, paste0(format(Sys.time(), "%a %b %d %X %Y")))
-    
-    if (writeToFile) write_output_file(data, "rds", "DataMergeFile", verbose = verbose, log = merge_log)
+
+    if (writeToFile) write_output_file(data, "rds", "DataMergeFile", verbose = verbose)
     msg("Done.\n")
 
     data
@@ -86,7 +86,7 @@ Merge <- function(..., unique = TRUE, rev = TRUE, writeToFile = FALSE, verbose =
     paste0("verbose = ", verbose), "",
     paste0(as.list(match.call()), collapse = "\n")
   )
-  
+
   msg("Merging collect data...\n")
 
   merge_dots <- list(...)
@@ -109,35 +109,6 @@ Merge.default <- function(...) {
 }
 
 #' @noRd
-#' @method Merge twitter
-#' @export
-Merge.twitter <- function(..., unique = TRUE, rev = TRUE, writeToFile = FALSE, verbose = FALSE) {
-  merge_dots <- merge_dots
-  merge_cls_data <- merge_cls_data
-
-  data <- purrr::reduce(merge_dots, .f = merge_twitter)
-  class(data) <- merge_cls_data
-
-  rev_twitter_df <- function(x) {
-    x$tweets <- rev_row_order(x$tweets)
-    x$users <- rev_row_order(x$users)
-    x
-  }
-
-  if (unique) {
-    if (rev) data <- rev_twitter_df(data)
-    data$tweets <- data$tweets |> dplyr::distinct(.data$status_id, .keep_all = TRUE)
-    data$users <- data$users |> dplyr::distinct(.data$id_str, .keep_all = TRUE)
-    if (rev) data <- rev_twitter_df(data)
-  }
-
-  if (writeToFile) write_output_file(data, "rds", "TwitterDataMerge", verbose = verbose, log = merge_log)
-  msg("Done.\n")
-
-  data
-}
-
-#' @noRd
 #' @method Merge youtube
 #' @export
 Merge.youtube <- function(..., unique = TRUE, rev = TRUE, writeToFile = FALSE, verbose = FALSE) {
@@ -152,7 +123,7 @@ Merge.youtube <- function(..., unique = TRUE, rev = TRUE, writeToFile = FALSE, v
     if (rev) data <- rev_row_order(data)
   }
 
-  if (writeToFile) write_output_file(data, "rds", "YoutubeDataMerge", verbose = verbose, log = merge_log)
+  if (writeToFile) write_output_file(data, "rds", "YoutubeDataMerge", verbose = verbose)
   msg("Done.\n")
 
   data
@@ -173,36 +144,10 @@ Merge.reddit <- function(..., unique = TRUE, rev = TRUE, writeToFile = FALSE, ve
     if (rev) data <- rev_row_order(data)
   }
 
-  if (writeToFile) write_output_file(data, "rds", "RedditDataMerge", verbose = verbose, log = merge_log)
+  if (writeToFile) write_output_file(data, "rds", "RedditDataMerge", verbose = verbose)
   msg("Done.\n")
 
   data
 }
 
-# #' @noRd
-# #' @method Merge web
-# #' @export
-# Merge.web <- function(..., unique = TRUE, rev = TRUE, writeToFile = FALSE, verbose = FALSE) {
-#   merge_cls_data <- merge_cls_data
-#
-#   data <- dplyr::bind_rows(...)
-#   class(data) <- merge_cls_data
-#
-#   if (writeToFile) write_output_file(data, "rds", "WebDataMerge", verbose = verbose)
-#   msg("Done.\n")
-#
-#   data
-# }
-
-merge_twitter <- function(x, y) {
-  # sometimes these logical twitter data columns are found as lists
-  x$tweets <- x$tweets |> twitter_fix_col_types()
-  y$tweets <- y$tweets |> twitter_fix_col_types()
-  
-  list(tweets = dplyr::bind_rows(x$tweets, y$tweets),
-       users = dplyr::bind_rows(x$users, y$users))
-}
-
-rev_row_order <- function(x) {
-  x[nrow(x):1, ]
-}
+rev_row_order <- function(x) x[nrow(x):1, ]

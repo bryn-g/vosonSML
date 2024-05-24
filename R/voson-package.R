@@ -1,5 +1,5 @@
-#' @name vosonSML-package
-#' @aliases vosonSML-package vosonSML
+#' @name voson-package
+#' @aliases voson-package voson
 #' @docType package
 #' @keywords internal
 "_PACKAGE"
@@ -8,5 +8,6 @@
 #' @importFrom rlang .data check_installed
 #' @importFrom stats na.omit runif setNames
 #' @importFrom utils capture.output flush.console read.table tail
+#' @importFrom stringr str_glue
 utils::globalVariables(c("collect_log", "merge_log"))
 NULL

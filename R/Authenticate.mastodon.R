@@ -27,7 +27,7 @@
 #'   instance = "mastodon.social",
 #'   type = "user"
 #' )
-#' 
+#'
 #' # if thread collection API token not required
 #' mastodon_auth <- Authenticate("mastodon")
 #' }
@@ -40,8 +40,8 @@ Authenticate.mastodon <-
            verbose = FALSE,
            ...) {
 
-    prompt_and_stop("rtoot", "Authenticate.mastodon")
-    
+    pkgs_install_or_stop("rtoot", "Authenticate.mastodon")
+
     msg("Creating mastodon token...\n")
 
     credential <- list(socialmedia = "mastodon", token = NULL)
@@ -50,17 +50,17 @@ Authenticate.mastodon <-
 
     if (is.null(instance)) {
       msg("No instance specified, setting public auth.\n")
-      
+
       credential$auth <- NULL
-      
+
       msg("Done.\n")
-      
+
       return(credential)
     }
-    
+
     instance <- check_chr(instance, param = "instance", min = 1)
     type <- check_chr(type, param = "type", accept = c("public", "user"))
-    
+
     token <- rtoot::auth_setup(
       instance = instance,
       type = type,

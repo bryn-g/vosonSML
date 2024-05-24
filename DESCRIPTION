@@ -1,9 +1,9 @@
-Package: vosonSML
-Version: 0.34.1
-Title: Collecting Social Media Data and Generating Networks for Analysis
-Description: A suite of easy to use functions for collecting social media
+Package: voson
+Version: 0.35
+Title: Collecting online data and generating networks for analysis
+Description: A suite of easy to use functions for collecting online
     data and generating networks for analysis. Supports Mastodon, YouTube,
-    Reddit, Twitter and web site data sources.
+    Reddit and web hyperlink data sources.
 Type: Package
 Imports:
     data.table,
@@ -17,8 +17,11 @@ Imports:
     stringr,
     textutils,
     tidyr,
-    tibble
+    tibble,
+    withr
 Suggests:
+    cli,
+    glue,
     httpuv,
     igraph (>= 1.2.2),
     knitr,
@@ -26,13 +29,11 @@ Suggests:
     rmarkdown,
     robotstxt,
     rtoot,
-    rtweet (>= 1.1.0),
     rvest,
-    stopwords,
     stringi,
     testthat,
+    tidygraph,
     urltools,
-    vctrs,
     xml2
 Depends: R (>= 4.1)
 Encoding: UTF-8

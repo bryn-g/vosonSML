@@ -68,16 +68,16 @@ ImportRtoot <- function(data) {
 import_rtoot_ <- function(...) {
   # .progress = "extracting thread posts"
   data <- purrr::map(list(...), ~ unlist_context(.x), .progress = FALSE)
-  
+
   # .progress = "processing posts"
-  df_posts <- purrr::map(data, ~ get_posts(.x), .progress = FALSE) |> purrr::list_rbind() 
+  df_posts <- purrr::map(data, ~ get_posts(.x), .progress = FALSE) |> purrr::list_rbind()
   df_users <- purrr::map(data, ~ get_users(.x), .progress = FALSE) |> purrr::list_rbind()
-  
+
   # if (unique) {
     df_posts <- df_posts |> dplyr::distinct(.data$id, .keep_all = TRUE)
     df_users <- df_users |> dplyr::distinct(.data$id, .keep_all = TRUE)
   # }
-  
+
   data <- list(posts = df_posts, users = df_users)
   class(data) <- append(c("datasource", "mastodon"), class(data))
 
@@ -90,14 +90,14 @@ unlist_context <- function(x) {
     y <- dplyr::bind_rows(x$ancestors, x$descendants)
     return(y)
   }
-  
+
   x
 }
 
 # clean posts data
 get_posts <- function(data) {
   if (!"content" %in% colnames(data)) return(data)
-  
+
   data |>
     dplyr::mutate(content.text = ensure_tags(.data$content)) |>
     html_text("content.text")
@@ -108,25 +108,12 @@ get_users <- function(data) {
   if ("account" %in% colnames(data)) {
     data <- data |>
       dplyr::select(.data$account) |>
-      tidyr::unnest_wider(.data$account)  
+      tidyr::unnest_wider(.data$account)
   }
-  
+
   if (!"note" %in% colnames(data)) return(data)
-  
+
   data <- data |>
     dplyr::mutate(note.text = ensure_tags(.data$note)) |>
     html_text("note.text")
-}
-
-# html to text conversion
-html_text <- function(data, cols) {
-  data |>
-    dplyr::rowwise() |>
-    dplyr::mutate_at(cols, ~ rvest::html_text2(rvest::read_html(.x)), na.rm = TRUE) |>
-    dplyr::ungroup()
-}
-
-# ensure html text is wrapped in html tags
-ensure_tags <- function(x, ...) {
-  dplyr::if_else(stringr::str_detect(x, "^<p>.*", negate = TRUE), paste0("<p>", x, "</p>"), x, ...)
 }

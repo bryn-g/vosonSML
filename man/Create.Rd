@@ -9,8 +9,7 @@ Create(datasource, type, ...)
 \arguments{
 \item{datasource}{Collected social media data of class \code{"datasource"} and \code{socialmedia}.}
 
-\item{type}{Character string. Type of network to be created, can be \code{"activity"}, \code{"actor"},
-\code{"twomode"} or \code{"semantic"}.}
+\item{type}{Character string. Type of network to be created, can be \code{"activity"} or \code{"actor"}}
 
 \item{...}{Optional parameters to pass to functions providied by supporting R packages that are used for social media
 network creation.}
@@ -24,11 +23,8 @@ There are four types of networks that can be created from collected data: \code{
 \code{twomode} or \code{semantic}.
 
 For \code{activity} networks refer to \code{\link{Create.activity.mastodon}}, \code{\link{Create.activity.youtube}}
-\code{\link{Create.activity.reddit}} and \code{\link{Create.activity.twitter}} for parameters and usage.
+\code{\link{Create.activity.reddit}} for parameters and usage.
 
 For \code{actor} networks refer to \code{\link{Create.actor.mastodon}}, \code{\link{Create.actor.youtube}},
-\code{\link{Create.actor.reddit}} and \code{\link{Create.actor.twitter}}.
-
-For \code{twomode} and \code{semantic} networks refer to \code{\link{Create.twomode.twitter}} and
-\code{\link{Create.semantic.twitter}} functions for parameters and usage respectively.
+and \code{\link{Create.actor.reddit}}.
 }

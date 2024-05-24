@@ -31,8 +31,8 @@ Collect.search.mastodon <-
            verbose = FALSE,
            ...) {
 
-    prompt_and_stop("rtoot", "Collect.search.mastodon")
-    
+    pkgs_install_or_stop("rtoot", "Collect.search.mastodon")
+
     msg("Collecting timeline posts...\n")
 
     auth_token <- credential$auth
@@ -42,7 +42,7 @@ Collect.search.mastodon <-
     } else {
       instance <- check_chr(instance, param = "instance")
     }
-    
+
     hashtag <- check_chr(hashtag, param = "hashtag", null.ok = TRUE)
     if (!is.null(hashtag) && hashtag != "") {
       msg(paste0("Hashtag: ", hashtag, "\n"))
@@ -53,9 +53,9 @@ Collect.search.mastodon <-
     search_params <- list()
     search_params[["token"]] <- auth_token
     search_params["instance"] <- instance
-    
+
     if (!is.null(hashtag)) search_params["hashtag"] <- hashtag
-    
+
     search_params["local"] <- local
     search_params["limit"] <- numPosts
     search_params["anonymous"] <- anonymous
@@ -71,14 +71,14 @@ Collect.search.mastodon <-
     } else {
       df_posts <- do.call(rtoot::get_timeline_hashtag, search_params)
     }
-    
+
     if (nrow(df_posts)) {
       df_posts <- df_posts |> import_rtoot_()
       n_posts <- check_df_n(df_posts$posts)
     } else {
       n_posts <- 0
     }
-    
+
     # summary
     if (n_posts > 0) {
 
@@ -99,8 +99,8 @@ Collect.search.mastodon <-
       ifelse(n_posts > 0, print_summary(df_summary), ""),
       "", paste0(format(Sys.time(), "%a %b %d %X %Y"))
     )
-    
-    if (writeToFile) write_output_file(df_posts, "rds", "MastodonData", verbose = verbose, log = meta_log)
+
+    if (writeToFile) write_output_file(df_posts, "rds", "MastodonData", verbose = verbose)
 
     msg("Done.\n")
 

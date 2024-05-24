@@ -8,17 +8,13 @@
 #'   \code{twomode} or \code{semantic}.
 #'
 #'   For \code{activity} networks refer to \code{\link{Create.activity.mastodon}}, \code{\link{Create.activity.youtube}}
-#'   \code{\link{Create.activity.reddit}} and \code{\link{Create.activity.twitter}} for parameters and usage.
+#'   \code{\link{Create.activity.reddit}} for parameters and usage.
 #'
 #'   For \code{actor} networks refer to \code{\link{Create.actor.mastodon}}, \code{\link{Create.actor.youtube}},
-#'   \code{\link{Create.actor.reddit}} and \code{\link{Create.actor.twitter}}.
-#'
-#'   For \code{twomode} and \code{semantic} networks refer to \code{\link{Create.twomode.twitter}} and
-#'   \code{\link{Create.semantic.twitter}} functions for parameters and usage respectively.
+#'   and \code{\link{Create.actor.reddit}}.
 #'
 #' @param datasource Collected social media data of class \code{"datasource"} and \code{socialmedia}.
-#' @param type Character string. Type of network to be created, can be \code{"activity"}, \code{"actor"},
-#'   \code{"twomode"} or \code{"semantic"}.
+#' @param type Character string. Type of network to be created, can be \code{"activity"} or \code{"actor"}
 #' @param ... Optional parameters to pass to functions providied by supporting R packages that are used for social media
 #'   network creation.
 #'
@@ -119,7 +115,7 @@ Create.semantic.default <- function(datasource, type, ...) {
 #' @export
 Create.twomode <- function(datasource, type, ...) {
   msg <- f_verbose(check_dots("verbose", ...))
-  
+
   UseMethod("Create.twomode", datasource)
 }
 

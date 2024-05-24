@@ -11,118 +11,9 @@ vsml_ua <- function() {
   paste0("vosonSML v.", get_version(), " (R Package)")
 }
 
-# return a file name with system time prefix
-sys_time_filename <-
-  function(name_suffix,
-           name_ext,
-           current_time = NULL,
-           clean = FALSE) {
-    if (is.null(current_time)) {
-      current_time <- Sys.time()
-    }
-
-    if (clean) {
-      name_suffix <- stringr::str_replace_all(name_suffix, "[\\s:]", "_")
-      name_ext <- stringr::str_remove_all(name_ext, "[\\s:\\.]")
-    }
-
-    paste0(format(current_time, "%Y-%m-%d_%H%M%S"),
-           "-",
-           name_suffix,
-           ".",
-           name_ext)
-  }
-
-data_path <- function(x = getOption("voson.data")) {
-  if (is.null(x)) return(NULL)
-
-  path <- gsub("\\\\", "/", x)
-  path <- sub("(\\/)+$", "", path)
-  path <- paste0(path, "/")
-
-  if (!dir.exists(path)) dir.create(path, showWarnings = TRUE)
-  if (dir.exists(path)) return(path)
-  
-  NULL
+get_ts <- function(x = Sys.time()) {
+  format(x, "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
 }
-
-# write data to file in supported file format
-write_output_file <-
-  function(data,
-           type = "rds",
-           name = "File",
-           datetime = TRUE,
-           verbose = FALSE,
-           log = NULL) {
-    msg <- f_verbose(verbose)
-
-    set_path <- function(x) x
-    data_path <- data_path()
-    if (!is.null(data_path)) {
-      set_path <- function(x) paste0(data_path, x)
-    }
-
-    supported_types <- c("graphml", "csv", "rds")
-
-    if (!type %in% supported_types) {
-      msg(paste0(
-        "File output not supported. please choose from: ",
-        paste0(supported_types, collapse = ", "),
-        "\n"
-      ))
-      return(NULL)
-    }
-
-    if (type == "csv") stop_req_pkgs(c("readr"))
-    if (datetime) name <- sys_time_filename(name, type)
-
-    path <- name
-
-    if (type == "rds") {
-      result <- tryCatch({
-        saveRDS(data, set_path(path))
-      }, error = function(e) {
-        msg(paste0("Error writing rds: ", set_path(path), "\n", e))
-      })
-    } else {
-      con <- file(set_path(path), open = "wb", encoding = "native.enc")
-      result <- tryCatch({
-        switch(type,
-               "graphml" = {
-                 igraph::write_graph(data, file = con, format = "graphml")
-               },
-               "csv" = {
-                 readr::write_csv(data, file = con)
-               })
-      }, error = function(e) {
-        msg(paste0("Error writing: ", set_path(path), "\n", e))
-      }, finally = {
-
-      })
-      close(con)
-    }
-
-    if (length(result) == 0) {
-      if (verbose) {
-        msg(paste0(toupper(type), " file written: "))
-        msg(paste0(set_path(path), "\n"))
-      }
-    } else {
-      if (verbose) msg(paste0("File unable to be written.\n"))
-    }
-    
-    # write a simple log file
-    if (!is.null(log)) {
-      log_path <- paste0(set_path(path), ".txt")
-      tryCatch({
-        con <- file(log_path)
-        writeLines(paste0(log, collapse = "\n"), con)
-        close(con)
-      }, error = function(e) {
-        msg(paste0("Error writing log file.\n", e))
-      })
-    }
-  }
 
 # get the length of the longest character value in a list
 max_chrlen_in_list <- function(lst) {
@@ -238,36 +129,36 @@ network_stats <-
 
 # remove collect classes from list
 rm_collect_cls <- function(cls_lst) {
-  cls_lst[!cls_lst %in% c("datasource", "twitter", "youtube", "reddit", "web")]
+  cls_lst[!cls_lst %in% c("datasource", "youtube", "reddit", "web")]
 }
 
-# check packages and prompt to install if interactive
-# stop if not installed
-prompt_and_stop <- function(pkgs, f) {
-  rlang::check_installed(pkgs, paste0("for ", f))
-  stop_req_pkgs(pkgs, f)
-}
+# # check packages and prompt to install if interactive
+# # stop if not installed
+# prompt_and_stop <- function(pkgs, f) {
+#   rlang::check_installed(pkgs, paste0("for ", f))
+#   stop_req_pkgs(pkgs, f)
+# }
 
-# check for required packages and stop with a message if missing
-stop_req_pkgs <- function(pkgs, from = "this function") {
-  # load the namespace of pkgs loadedNamespaces()
-  req <- sapply(pkgs, function(x) requireNamespace(x, quietly = TRUE))
-  
-  if (any(req == FALSE)) {
-    stop(
-      paste0(
-        "Please install ",
-        paste0(names(which(req == FALSE)), collapse = ", "),
-        " package",
-        ifelse(length(which(req == FALSE)) > 1, "s", ""),
-        " before calling ",
-        from,
-        ".",
-        call. = FALSE
-      )
-    )
-  }
-}
+# # check for required packages and stop with a message if missing
+# stop_req_pkgs <- function(pkgs, from = "this function") {
+#   # load the namespace of pkgs loadedNamespaces()
+#   req <- sapply(pkgs, function(x) requireNamespace(x, quietly = TRUE))
+#
+#   if (any(req == FALSE)) {
+#     stop(
+#       paste0(
+#         "Please install ",
+#         paste0(names(which(req == FALSE)), collapse = ", "),
+#         " package",
+#         ifelse(length(which(req == FALSE)) > 1, "s", ""),
+#         " before calling ",
+#         from,
+#         ".",
+#         call. = FALSE
+#       )
+#     )
+#   }
+# }
 
 # escape value for use as literal in a regex
 escape_regex <- function(x) {
@@ -360,7 +251,7 @@ check_num <-
         stop(paste0(param, " must be numeric with no NULL values."), call. = FALSE)
       }
     }
-    
+
     y <- x[!sapply(x, is.null)]
     if (length(y) < 1) return(x)
 
@@ -369,14 +260,14 @@ check_num <-
         stop(paste0(param, " must be numeric with no NA values."), call. = FALSE)
       }
     }
-    
+
     z <- y[!sapply(y, is.na)]
     if (length(z) < 1) return(x)
-    
+
     if (any(!is.numeric(z))) {
       stop(paste0(param, " must be numeric."), call. = FALSE)
     }
-    
+
     if (inf.ok == FALSE) {
       if (any(is.infinite(z))) {
         stop(paste0(param, " must be numeric with no Inf values."), call. = FALSE)
@@ -385,19 +276,19 @@ check_num <-
 
     zz <- z[!sapply(z, is.infinite)]
     if (length(zz) < 1) return(x)
-    
+
     if (double == FALSE) {
       if (!all.equal(zz, as.integer(zz))) {
         stop(paste0(param, " must be numeric with no double type."), call. = FALSE)
       }
     }
-    
+
     if (!is.null(gte)) {
       if (any(zz < gte)) {
         stop(paste0(param, " must be greater than or equal to ", gte, "."), call. = FALSE)
       }
     }
-    
+
     x
   }
 
@@ -431,7 +322,7 @@ cmp_values <- function(x, y, param = "value", n = NULL, lc = TRUE) {
       stop(paste0("Please provide a ", param, " value that is length 1 or ", n, "."), call. = FALSE)
     }
   }
-  
+
   if (lc) x <- tolower(x)
   if (!all(x %in% y)) {
     stop(paste0("Please provide ", param, " values in ", paste0(y, collapse = ", "), "."), call. = FALSE)

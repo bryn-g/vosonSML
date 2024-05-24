@@ -30,3 +30,5 @@
 ^\.github$
 
 ^\vsml-data$
+
+^testing\-.*\.R

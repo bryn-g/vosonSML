@@ -333,12 +333,12 @@ Collect.youtube <-
 
     dataCombined <-
       tibble::as_tibble(dataCombined) # convert type to tibble for package consistency
-    
+
     class(dataCombined) <- append(c("datasource", "youtube"), class(dataCombined))
-    
+
     meta_log <- c(collect_log, paste0(format(Sys.time(), "%a %b %d %X %Y")))
-    
-    if (writeToFile) write_output_file(dataCombined, "rds", "YoutubeData", verbose = verbose, log = meta_log)
+
+    if (writeToFile) write_output_file(dataCombined, "rds", "YoutubeData", verbose = verbose)
 
     msg("Done.\n")
 
